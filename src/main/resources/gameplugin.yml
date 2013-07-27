@@ -1,4 +1,4 @@
-main-class: "com.greatmancode.slapfish.fishslap"
+main-class: "com.greatmancode.fishslap.FishSlap"
 description: "The official Ultimate Games Fishslap game"
 version: "1.0"
 author: "greatman"
