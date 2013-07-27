@@ -1,5 +1,5 @@
-main-class: "com.greatmancode.slapfish.Slapfish"
-description: "The official Ultimate Games Slapfish game"
+main-class: "com.greatmancode.slapfish.fishslap"
+description: "The official Ultimate Games Fishslap game"
 version: "1.0"
 author: "greatman"
 scoreTypeName: "Kills:Deaths"
@@ -24,6 +24,6 @@ CustomValues:
   GameTime: 300
 
 Instructions:
-- "Kill others as much as possible in the time given!"
+- "Slap people off with your fish!"
 Messages:
   GameEnd: "%s won with %s kills!"

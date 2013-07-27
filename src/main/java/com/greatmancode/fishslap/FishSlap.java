@@ -1,4 +1,4 @@
-package com.greatmancode.slapfish;
+package com.greatmancode.fishslap;
 
 import java.util.ArrayList;
 import me.ampayne2.UltimateGames.API.ArenaScoreboard;
@@ -29,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class Slapfish extends GamePlugin {
+public class FishSlap extends GamePlugin {
 
 	private UltimateGames ultimateGames;
 	private Game game;
