@@ -1,13 +1,14 @@
 package com.greatmancode.fishslap;
 
 import java.util.ArrayList;
-import me.ampayne2.UltimateGames.API.ArenaScoreboard;
-import me.ampayne2.UltimateGames.API.GamePlugin;
-import me.ampayne2.UltimateGames.Arenas.Arena;
-import me.ampayne2.UltimateGames.Enums.ArenaStatus;
-import me.ampayne2.UltimateGames.Games.Game;
-import me.ampayne2.UltimateGames.Players.SpawnPoint;
-import me.ampayne2.UltimateGames.UltimateGames;
+
+import me.ampayne2.ultimategames.UltimateGames;
+import me.ampayne2.ultimategames.api.ArenaScoreboard;
+import me.ampayne2.ultimategames.api.GamePlugin;
+import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.games.Game;
+import me.ampayne2.ultimategames.players.SpawnPoint;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -245,6 +246,7 @@ public class FishSlap extends GamePlugin {
 			}
 			event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
 			resetInventory(event.getPlayer());
+			event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 10, 2), true);
 		}
 	}
 }
