@@ -26,4 +26,4 @@ CustomValues:
 Instructions:
 - "Slap people off with your fish!"
 Messages:
-  GameEnd: "%s won with %s kills!"
+  GameEnd: "%s won %s on arena %s!"

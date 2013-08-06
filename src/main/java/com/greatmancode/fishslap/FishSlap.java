@@ -1,6 +1,7 @@
 package com.greatmancode.fishslap;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.ArenaScoreboard;
@@ -18,15 +19,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class FishSlap extends GamePlugin {
 
@@ -92,25 +90,22 @@ public class FishSlap extends GamePlugin {
 	public Boolean endArena(Arena arena) {
 		String highestScorer = "Nobody";
 		Integer highScore = 0;
-		for (ArenaScoreboard scoreBoard : new ArrayList<ArenaScoreboard>(ultimateGames.getScoreboardManager().getArenaScoreboards(arena))) {
+		List<String> players = arena.getPlayers();
+		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
 			if (scoreBoard.getName().equals("Kills")) {
-				for (String playerName : new ArrayList<String>(arena.getPlayers())) {
+				for (String playerName : players) {
 					Integer playerScore = scoreBoard.getScore(playerName);
 					if (playerScore > highScore) {
 						highestScorer = playerName;
 						highScore = playerScore;
 					}
-					ultimateGames.getPlayerManager().removePlayerFromArena(playerName, arena, false);
 				}
 			}
 		}
 		ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
-		ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, Integer.toString(highScore));
-		if (ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
-			ultimateGames.getCountdownManager().stopStartingCountdown(arena);
-		}
-		if (ultimateGames.getCountdownManager().isEndingCountdownEnabled(arena)) {
-			ultimateGames.getCountdownManager().stopEndingCountdown(arena);
+		ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, game.getGameDescription().getName(), arena.getName());
+		for (String playerName : players) {
+			ultimateGames.getPlayerManager().removePlayerFromArena(playerName, arena, false);
 		}
 		ultimateGames.getArenaManager().openArena(arena);
 		return true;
@@ -146,14 +141,6 @@ public class FishSlap extends GamePlugin {
 
 	@Override
 	public Boolean removePlayer(Arena arena, String playerName) {
-		if (ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena) && arena.getPlayers().size() <= arena.getMinPlayers()) {
-			ultimateGames.getCountdownManager().stopStartingCountdown(arena);
-		}
-		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-			if (scoreBoard.getName().equals("Kills")) {
-				scoreBoard.removePlayer(playerName);
-			}
-		}
 		return true;
 	}
 
@@ -171,79 +158,57 @@ public class FishSlap extends GamePlugin {
 	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
 
 	}
+	
+	@Override
+	public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
+		Player player = event.getEntity();
+		String killerName = null;
+		Player killer = event.getEntity().getKiller();
+		if (killer != null) {
+			killerName = killer.getName();
+		}
+		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+			if (scoreBoard.getName().equals("Kills") && killerName != null) {
+				scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
+			}
+		}
+		event.getDrops().clear();
+		ultimateGames.getUtils().autoRespawn(player);
+	}
+	
+	@Override
+	public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
+		event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
+		resetInventory(event.getPlayer());
+	}
+	
+	@Override
+	public void onEntityDamage(Arena arena, EntityDamageEvent event) {
+		if (event.getEntity() instanceof Player) {
+			event.setDamage(0.0);
+		}
+	}
+	
+	@Override
+	public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
+		
+	}
+	
+	@Override
+	public void onPlayerInteract(Arena arena, PlayerInteractEvent event) {
+		
+	}
 
 	@SuppressWarnings("deprecation")
 	private void resetInventory(Player player) {
 		player.getInventory().clear();
-		String playerName = player.getName();
 		ItemStack stack = new ItemStack(Material.RAW_FISH);
 		stack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
 		player.getInventory().addItem(stack);
+		String playerName = player.getName();
 		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
+			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(ultimateGames.getPlayerManager().getPlayerArena(playerName).getGame()));
 		}
 		player.updateInventory();
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDamageByPlayer(EntityDamageByEntityEvent event) {
-		if (!(event.getEntity() instanceof Player)) {
-			return;
-		}
-		Player damaged = (Player) event.getEntity();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(damaged.getName())) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(damaged.getName());
-			if (!arena.getGame().equals(game)) {
-				return;
-			}
-			event.setCancelled(true);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDamage(EntityDamageEvent event) {
-		if (event.getEntity() instanceof Player) {
-			String playerName = ((Player) event.getEntity()).getName();
-			if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getStatus() != ArenaStatus.RUNNING) {
-				event.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDeath(PlayerDeathEvent event) {
-		String playerName = ((Player) event.getEntity()).getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-			if (!arena.getGame().equals(game)) {
-				return;
-			}
-
-			String killerName = null;
-			Player killer = event.getEntity().getKiller();
-			if (killer != null) {
-				killerName = killer.getName();
-			}
-			for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-				if (scoreBoard.getName().equals("Kills") && killerName != null) {
-					scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
-				}
-			}
-			event.getDrops().clear();
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		if (ultimateGames.getPlayerManager().isPlayerInArena(event.getPlayer().getName())) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(event.getPlayer().getName());
-			if (!arena.getGame().equals(game)) {
-				return;
-			}
-			event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
-			resetInventory(event.getPlayer());
-			event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 10, 2), true);
-		}
 	}
 }
