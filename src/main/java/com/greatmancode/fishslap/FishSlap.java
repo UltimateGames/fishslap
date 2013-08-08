@@ -46,7 +46,7 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean loadArena(Arena arena) {
-        ultimateGames.getJettyServer().getHandler().addHandler("/Fishslap/"+arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ultimateGames.addAPIHandler("/Fishslap/"+arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
         return true;
     }
 
