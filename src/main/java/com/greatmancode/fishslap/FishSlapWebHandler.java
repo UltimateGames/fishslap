@@ -1,11 +1,12 @@
 package com.greatmancode.fishslap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.json.JSONArray;
-import me.ampayne2.ultimategames.json.JSONException;
-import me.ampayne2.ultimategames.json.JSONObject;
+import me.ampayne2.ultimategames.gson.Gson;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 public class FishSlapWebHandler implements WebHandler {
 
@@ -18,23 +19,17 @@ public class FishSlapWebHandler implements WebHandler {
 
     @Override
     public String sendResult() {
-        JSONArray jsonArray = new JSONArray();
-
+        Gson gson = new Gson();
+        Map<String, Integer> map = new HashMap<String, Integer>();
 
         for (ArenaScoreboard scoreBoard : ug.getScoreboardManager().getArenaScoreboards(arena)) {
             if (scoreBoard.getName().equals("Kills")) {
                 for (String playerName: arena.getPlayers()) {
-                    JSONObject obj = new JSONObject();
-                    try {
-                        obj.append(playerName, scoreBoard.getScore(playerName));
-                        jsonArray.put(obj);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    map.put(playerName, scoreBoard.getScore(playerName));
                 }
                 break;
             }
         }
-        return jsonArray.toString();
+        return gson.toJson(map);
     }
 }
