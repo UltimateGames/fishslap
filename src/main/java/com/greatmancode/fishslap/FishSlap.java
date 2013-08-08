@@ -101,7 +101,6 @@ public class FishSlap extends GamePlugin {
         }
         ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
         ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, game.getGameDescription().getName(), arena.getName());
-        ultimateGames.getArenaManager().openArena(arena);
     }
 
     @Override
