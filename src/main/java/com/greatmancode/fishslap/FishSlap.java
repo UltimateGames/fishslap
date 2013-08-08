@@ -84,7 +84,7 @@ public class FishSlap extends GamePlugin {
     }
 
     @Override
-    public Boolean endArena(Arena arena) {
+    public void endArena(Arena arena) {
         String highestScorer = "Nobody";
         Integer highScore = 0;
         List<String> players = arena.getPlayers();
@@ -101,11 +101,7 @@ public class FishSlap extends GamePlugin {
         }
         ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
         ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, game.getGameDescription().getName(), arena.getName());
-        for (String playerName : players) {
-            ultimateGames.getPlayerManager().removePlayerFromArena(playerName, arena, false);
-        }
         ultimateGames.getArenaManager().openArena(arena);
-        return true;
     }
 
     @Override
