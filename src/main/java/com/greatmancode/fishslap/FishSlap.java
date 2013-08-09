@@ -126,7 +126,7 @@ public class FishSlap extends GamePlugin {
         SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(playerName);
-        Player player = Bukkit.getPlayer(playerName);
+        Player player = Bukkit.getPlayerExact(playerName);
         resetInventory(player);
         return true;
     }
