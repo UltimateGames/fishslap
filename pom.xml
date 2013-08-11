@@ -47,6 +47,7 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<finalName>Fishslap</finalName>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<defaultGoal>clean install</defaultGoal>
 		<resources>

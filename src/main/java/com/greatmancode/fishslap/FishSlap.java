@@ -174,6 +174,7 @@ public class FishSlap extends GamePlugin {
     @SuppressWarnings("deprecation")
     private void resetInventory(Player player) {
         player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
         ItemStack stack = new ItemStack(Material.RAW_FISH);
         stack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
         player.getInventory().addItem(stack);
