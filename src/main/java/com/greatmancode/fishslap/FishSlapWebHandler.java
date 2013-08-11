@@ -12,6 +12,7 @@ public class FishSlapWebHandler implements WebHandler {
 
     private Arena arena;
     private UltimateGames ug;
+    
     public FishSlapWebHandler(UltimateGames ug, Arena arena) {
         this.arena = arena;
         this.ug = ug;

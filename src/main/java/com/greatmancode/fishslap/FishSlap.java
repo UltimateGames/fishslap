@@ -1,8 +1,5 @@
 package com.greatmancode.fishslap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.api.GamePlugin;
@@ -15,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -46,12 +44,15 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean loadArena(Arena arena) {
-        ultimateGames.addAPIHandler("/Fishslap/"+arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ultimateGames.addAPIHandler("/" + game.getGameDescription().getName() + "/" +arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
+        scoreBoard.setVisible(true);
         return true;
     }
 
     @Override
     public Boolean unloadArena(Arena arena) {
+        ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
         return true;
     }
 
@@ -70,37 +71,12 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean beginArena(Arena arena) {
-        ultimateGames.getCountdownManager().createEndingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.GameTime"), true);
-        for (ArenaScoreboard scoreBoard : new ArrayList<ArenaScoreboard>(ultimateGames.getScoreboardManager().getArenaScoreboards(arena))) {
-            ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, scoreBoard.getName());
-        }
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
-        for (String playerName : arena.getPlayers()) {
-            scoreBoard.addPlayer(playerName);
-            scoreBoard.setScore(playerName, 0);
-        }
-        scoreBoard.setVisible(true);
         return true;
     }
 
     @Override
     public void endArena(Arena arena) {
-        String highestScorer = "Nobody";
-        Integer highScore = 0;
-        List<String> players = arena.getPlayers();
-        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-            if (scoreBoard.getName().equals("Kills")) {
-                for (String playerName : players) {
-                    Integer playerScore = scoreBoard.getScore(playerName);
-                    if (playerScore > highScore) {
-                        highestScorer = playerName;
-                        highScore = playerScore;
-                    }
-                }
-            }
-        }
-        ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
-        ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, game.getGameDescription().getName(), arena.getName());
+        
     }
 
     @Override
@@ -120,19 +96,30 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean addPlayer(Arena arena, String playerName) {
-        if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
-            ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.StartWaitTime"));
-        }
         SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(playerName);
         Player player = Bukkit.getPlayerExact(playerName);
         resetInventory(player);
+        player.setHealth(20.0);
+        player.setFoodLevel(20);
+        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+            if (scoreBoard.getName().equals("Kills")) {
+                scoreBoard.addPlayer(playerName);
+                scoreBoard.setScore(playerName, 0);
+            }
+        }
         return true;
     }
 
     @Override
     public Boolean removePlayer(Arena arena, String playerName) {
+        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+            if (scoreBoard.getName().equals("Kills")) {
+                scoreBoard.removePlayer(playerName);
+                scoreBoard.resetScore(playerName);
+            }
+        }
         return true;
     }
 
@@ -158,16 +145,15 @@ public class FishSlap extends GamePlugin {
         event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
         resetInventory(event.getPlayer());
     }
+    
+    @Override
+    public void onEntityDamage(Arena arena, EntityDamageEvent event) {
+        
+    }
 
     @Override
     public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
-        if (arena.getStatus() != ArenaStatus.RUNNING) {
-            event.setCancelled(true);
-            return;
-        }
-        if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
-            event.setDamage(0.0);
-        }
+        event.setDamage(0.0);
     }
 
     @Override

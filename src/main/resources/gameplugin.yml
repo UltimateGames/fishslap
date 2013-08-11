@@ -19,11 +19,6 @@ DefaultSettings:
   Allow-Explosion-Block-Breaking: false
   Allow-Building: false
   Allow-Breaking: false
-CustomValues:
-  StartWaitTime: 30
-  GameTime: 300
-
 Instructions:
 - "Slap people off with your fish!"
-Messages:
-  GameEnd: "%s won %s on arena %s!"
+Messages: []
