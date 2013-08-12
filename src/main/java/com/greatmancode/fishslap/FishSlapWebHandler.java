@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.gson.Gson;
+import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 public class FishSlapWebHandler implements WebHandler {
 

@@ -1,12 +1,13 @@
 package com.greatmancode.fishslap;
 
 import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.arenas.SpawnPoint;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.players.SpawnPoint;
+import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -45,14 +46,11 @@ public class FishSlap extends GamePlugin {
     @Override
     public Boolean loadArena(Arena arena) {
         ultimateGames.addAPIHandler("/" + game.getGameDescription().getName() + "/" +arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
-        scoreBoard.setVisible(true);
         return true;
     }
 
     @Override
     public Boolean unloadArena(Arena arena) {
-        ultimateGames.getScoreboardManager().removeArenaScoreboard(arena, "Kills");
         return true;
     }
 
@@ -86,6 +84,8 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean openArena(Arena arena) {
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
+        scoreBoard.setVisible(true);
         return true;
     }
 
@@ -118,6 +118,7 @@ public class FishSlap extends GamePlugin {
             if (scoreBoard.getName().equals("Kills")) {
                 scoreBoard.removePlayer(playerName);
                 scoreBoard.resetScore(playerName);
+                scoreBoard.resetPlayerColor(playerName);
             }
         }
         return true;
@@ -175,13 +176,9 @@ public class FishSlap extends GamePlugin {
     private void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        ItemStack stack = new ItemStack(Material.RAW_FISH);
-        stack.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
-        player.getInventory().addItem(stack);
-        String playerName = player.getName();
-        if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-            player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(ultimateGames.getPlayerManager().getPlayerArena(playerName).getGame()));
-        }
+        ItemStack fish = new ItemStack(Material.RAW_FISH);
+        fish.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+        player.getInventory().addItem(fish, ultimateGames.getUtils().createInstructionBook(game));
         player.updateInventory();
     }
 }
