@@ -8,12 +8,10 @@ import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -95,33 +93,31 @@ public class FishSlap extends GamePlugin {
     }
 
     @Override
-    public Boolean addPlayer(Arena arena, String playerName) {
+    public Boolean addPlayer(Player player, Arena arena) {
         SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
-        spawnPoint.teleportPlayer(playerName);
-        Player player = Bukkit.getPlayerExact(playerName);
+        spawnPoint.teleportPlayer(player);
         resetInventory(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
         for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
             if (scoreBoard.getName().equals("Kills")) {
-                scoreBoard.addPlayer(playerName);
-                scoreBoard.setScore(playerName, 0);
+                scoreBoard.addPlayer(player);
+                scoreBoard.setScore(player.getName(), 0);
             }
         }
         return true;
     }
 
     @Override
-    public Boolean removePlayer(Arena arena, String playerName) {
+    public void removePlayer(Player player, Arena arena) {
         for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
             if (scoreBoard.getName().equals("Kills")) {
-                scoreBoard.removePlayer(playerName);
-                scoreBoard.resetScore(playerName);
-                scoreBoard.resetPlayerColor(playerName);
+                scoreBoard.removePlayer(player);
+                scoreBoard.resetScore(player.getName());
+                scoreBoard.resetPlayerColor(player);
             }
         }
-        return true;
     }
 
     @Override
@@ -145,11 +141,6 @@ public class FishSlap extends GamePlugin {
     public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
         event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
         resetInventory(event.getPlayer());
-    }
-    
-    @Override
-    public void onEntityDamage(Arena arena, EntityDamageEvent event) {
-        
     }
 
     @Override
