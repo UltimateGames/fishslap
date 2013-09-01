@@ -4,7 +4,6 @@ import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.SpawnPoint;
-import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 
@@ -18,6 +17,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 
 public class FishSlap extends GamePlugin {
 
@@ -43,7 +43,9 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean loadArena(Arena arena) {
-        ultimateGames.addAPIHandler("/" + game.getGameDescription().getName() + "/" +arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ultimateGames.addAPIHandler("/" + game.getName() + "/" +arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
+        scoreBoard.setVisible(true);
         return true;
     }
 
@@ -54,9 +56,6 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean isStartPossible(Arena arena) {
-        if (arena.getStatus() == ArenaStatus.OPEN) {
-            return true;
-        }
         return false;
     }
 
@@ -82,8 +81,6 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean openArena(Arena arena) {
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
-        scoreBoard.setVisible(true);
         return true;
     }
 
@@ -113,11 +110,32 @@ public class FishSlap extends GamePlugin {
     public void removePlayer(Player player, Arena arena) {
         for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
             if (scoreBoard.getName().equals("Kills")) {
-                scoreBoard.removePlayer(player);
                 scoreBoard.resetScore(player.getName());
-                scoreBoard.resetPlayerColor(player);
             }
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public Boolean addSpectator(Player player, Arena arena) {
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
+        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
+        spawnPoint.lock(false);
+        spawnPoint.teleportPlayer(player);
+        player.setHealth(20.0);
+        player.setFoodLevel(20);
+        player.getInventory().clear();
+        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().setArmorContents(null);
+        player.updateInventory();
+        return true;
+    }
+    
+    @Override
+    public void removeSpectator(Player player, Arena arena) {
+        
     }
 
     @Override
@@ -168,7 +186,7 @@ public class FishSlap extends GamePlugin {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         ItemStack fish = new ItemStack(Material.RAW_FISH);
-        fish.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+        fish.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
         player.getInventory().addItem(fish, ultimateGames.getUtils().createInstructionBook(game));
         player.updateInventory();
     }
