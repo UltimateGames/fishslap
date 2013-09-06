@@ -32,7 +32,12 @@ public class FishSlap extends GamePlugin {
     }
 
     @Override
-    public Boolean unloadGame() {
+    public void unloadGame() {
+
+    }
+
+    @Override
+    public Boolean reloadGame() {
         return true;
     }
 
@@ -43,7 +48,7 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean loadArena(Arena arena) {
-        ultimateGames.addAPIHandler("/" + game.getName() + "/" +arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
+        ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
         scoreBoard.setVisible(true);
         return true;
@@ -71,7 +76,7 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public void endArena(Arena arena) {
-        
+
     }
 
     @Override
@@ -97,24 +102,22 @@ public class FishSlap extends GamePlugin {
         resetInventory(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
-        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-            if (scoreBoard.getName().equals("Kills")) {
-                scoreBoard.addPlayer(player);
-                scoreBoard.setScore(player.getName(), 0);
-            }
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        if (scoreBoard != null) {
+            scoreBoard.addPlayer(player);
+            scoreBoard.setScore(player.getName(), 0);
         }
         return true;
     }
 
     @Override
     public void removePlayer(Player player, Arena arena) {
-        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-            if (scoreBoard.getName().equals("Kills")) {
-                scoreBoard.resetScore(player.getName());
-            }
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        if (scoreBoard != null) {
+            scoreBoard.resetScore(player.getName());
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     @Override
     public Boolean addSpectator(Player player, Arena arena) {
@@ -132,10 +135,10 @@ public class FishSlap extends GamePlugin {
         player.updateInventory();
         return true;
     }
-    
+
     @Override
     public void removeSpectator(Player player, Arena arena) {
-        
+
     }
 
     @Override
@@ -146,10 +149,9 @@ public class FishSlap extends GamePlugin {
         if (killer != null) {
             killerName = killer.getName();
         }
-        for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-            if (scoreBoard.getName().equals("Kills") && killerName != null) {
-                scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
-            }
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        if (scoreBoard != null && killerName != null) {
+            scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
         }
         event.getDrops().clear();
         ultimateGames.getUtils().autoRespawn(player);
