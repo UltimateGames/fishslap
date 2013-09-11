@@ -3,7 +3,7 @@ package com.greatmancode.fishslap;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.SpawnPoint;
+import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 
@@ -96,9 +96,12 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public Boolean addPlayer(Player player, Arena arena) {
-        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
+        PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(player);
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
         resetInventory(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
@@ -121,12 +124,10 @@ public class FishSlap extends GamePlugin {
     @SuppressWarnings("deprecation")
     @Override
     public Boolean addSpectator(Player player, Arena arena) {
+        ultimateGames.getSpawnpointManager().getSpectatorSpawnPoint(arena).teleportPlayer(player);
         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
             player.removePotionEffect(potionEffect.getType());
         }
-        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
-        spawnPoint.lock(false);
-        spawnPoint.teleportPlayer(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();

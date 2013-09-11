@@ -30,7 +30,7 @@ public class FishSlapWebHandler implements WebHandler {
                 map.put(playerName, scoreBoard.getScore(playerName));
             }
         }
-        
+
         return gson.toJson(map);
     }
 }
