@@ -7,6 +7,7 @@ import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -131,7 +132,7 @@ public class FishSlap extends GamePlugin {
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();
-        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(UGUtils.createInstructionBook(game));
         player.getInventory().setArmorContents(null);
         player.updateInventory();
         return true;
@@ -155,7 +156,7 @@ public class FishSlap extends GamePlugin {
             scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
         }
         event.getDrops().clear();
-        ultimateGames.getUtils().autoRespawn(player);
+        UGUtils.autoRespawn(player);
     }
 
     @Override
@@ -190,7 +191,7 @@ public class FishSlap extends GamePlugin {
         player.getInventory().setArmorContents(null);
         ItemStack fish = new ItemStack(Material.RAW_FISH);
         fish.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
-        player.getInventory().addItem(fish, ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(fish, UGUtils.createInstructionBook(game));
         player.updateInventory();
     }
 }
