@@ -151,9 +151,12 @@ public class FishSlap extends GamePlugin {
         if (killer != null) {
             killerName = killer.getName();
         }
+        ultimateGames.getPointManager().addPoint(game, player.getName(), "death", 1);
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
         if (scoreBoard != null && killerName != null) {
             scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
+            ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
+            ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
         }
         event.getDrops().clear();
         UGUtils.autoRespawn(player);
