@@ -1,16 +1,15 @@
 package com.greatmancode.fishslap;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.gson.Gson;
 import me.ampayne2.ultimategames.webapi.WebHandler;
 
-public class FishSlapWebHandler implements WebHandler {
+import java.util.HashMap;
+import java.util.Map;
 
+public class FishSlapWebHandler implements WebHandler {
     private Arena arena;
     private UltimateGames ug;
 

@@ -6,7 +6,6 @@ import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
-
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -15,15 +14,23 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class FishSlap extends GamePlugin {
-
     private UltimateGames ultimateGames;
     private Game game;
+    private Map<String, KillStreak> streaks = new HashMap<String, KillStreak>();
+    private final static ItemStack FISH;
+    private final static Vector HORIZONTAL = new Vector(3, 0, 3);
+    private final static Vector VERTICAL = new Vector(0, 2, 0);
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -34,7 +41,6 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public void unloadGame() {
-
     }
 
     @Override
@@ -97,6 +103,7 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public boolean addPlayer(Player player, Arena arena) {
+        String playerName = player.getName();
         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(player);
@@ -109,17 +116,20 @@ public class FishSlap extends GamePlugin {
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
         if (scoreBoard != null) {
             scoreBoard.addPlayer(player);
-            scoreBoard.setScore(player.getName(), 0);
+            scoreBoard.setScore(playerName, 0);
         }
+        streaks.put(playerName, new KillStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
         return true;
     }
 
     @Override
     public void removePlayer(Player player, Arena arena) {
+        String playerName = player.getName();
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
         if (scoreBoard != null) {
-            scoreBoard.resetScore(player.getName());
+            scoreBoard.resetScore(playerName);
         }
+        streaks.remove(playerName);
     }
 
     @SuppressWarnings("deprecation")
@@ -146,17 +156,20 @@ public class FishSlap extends GamePlugin {
     @Override
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         Player player = event.getEntity();
+        String playerName = player.getName();
         String killerName = null;
         Player killer = event.getEntity().getKiller();
         if (killer != null) {
             killerName = killer.getName();
         }
         ultimateGames.getPointManager().addPoint(game, player.getName(), "death", 1);
+        streaks.get(playerName).reset();
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
         if (scoreBoard != null && killerName != null) {
             scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
             ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
             ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
+            streaks.get(killerName).increaseCount();
         }
         event.getDrops().clear();
         UGUtils.autoRespawn(player);
@@ -188,13 +201,24 @@ public class FishSlap extends GamePlugin {
         event.setCancelled(true);
     }
 
+    @Override
+    public void onPlayerMove(Arena arena, PlayerMoveEvent event) {
+        if (event.getTo().getBlock().getType() == Material.IRON_PLATE) {
+            Player player = event.getPlayer();
+            player.setVelocity(player.getEyeLocation().getDirection().multiply(HORIZONTAL).add(VERTICAL));
+        }
+    }
+
     @SuppressWarnings("deprecation")
     private void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        ItemStack fish = new ItemStack(Material.RAW_FISH);
-        fish.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
-        player.getInventory().addItem(fish, UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(FISH, UGUtils.createInstructionBook(game));
         player.updateInventory();
+    }
+
+    static {
+        FISH = new ItemStack(Material.RAW_FISH);
+        FISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
     }
 }
