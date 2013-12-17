@@ -9,6 +9,7 @@ import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,7 @@ public class FishSlap extends GamePlugin {
     private final static ItemStack FISH;
     private final static Vector HORIZONTAL = new Vector(3, 0, 3);
     private final static Vector VERTICAL = new Vector(0, 2, 0);
+    private final static Map<String, String> killers = new HashMap<String, String>();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -131,6 +134,12 @@ public class FishSlap extends GamePlugin {
             scoreBoard.resetScore(playerName);
         }
         streaks.remove(playerName);
+        killers.remove(playerName);
+        for (String arenaPlayer : new ArrayList<String>(killers.keySet())) {
+            if (killers.get(arenaPlayer).equals(playerName)) {
+                killers.remove(arenaPlayer);
+            }
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -158,19 +167,18 @@ public class FishSlap extends GamePlugin {
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         Player player = event.getEntity();
         String playerName = player.getName();
-        String killerName = null;
-        Player killer = event.getEntity().getKiller();
-        if (killer != null) {
-            killerName = killer.getName();
-        }
-        ultimateGames.getPointManager().addPoint(game, player.getName(), "death", 1);
+        ultimateGames.getPointManager().addPoint(game, playerName, "death", 1);
         streaks.get(playerName).reset();
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
-        if (scoreBoard != null && killerName != null) {
-            scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
-            ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
-            ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
-            streaks.get(killerName).increaseCount();
+        if (killers.containsKey(playerName)) {
+            String killerName = killers.get(playerName);
+            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+            if (scoreBoard != null) {
+                scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
+                ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
+                ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
+                streaks.get(killerName).increaseCount();
+            }
+            killers.remove(playerName);
         }
         event.getDrops().clear();
         UGUtils.autoRespawn(player);
@@ -185,6 +193,11 @@ public class FishSlap extends GamePlugin {
     @Override
     public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
         event.setDamage(0.0);
+        Entity entity = event.getEntity();
+        Entity damager = event.getDamager();
+        if (entity instanceof Player && damager instanceof Player) {
+            killers.put(((Player) entity).getName(), ((Player) damager).getName());
+        }
     }
 
     @Override
