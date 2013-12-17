@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -184,6 +185,13 @@ public class FishSlap extends GamePlugin {
     @Override
     public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
         event.setDamage(0.0);
+    }
+
+    @Override
+    public void onEntityDamage(Arena arena, EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            event.setCancelled(true);
+        }
     }
 
     @Override
