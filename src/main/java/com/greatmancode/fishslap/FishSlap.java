@@ -107,7 +107,7 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public boolean addPlayer(Player player, Arena arena) {
-        String playerName = player.getName();
+        final String playerName = player.getName();
         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(player);
@@ -122,7 +122,12 @@ public class FishSlap extends GamePlugin {
             scoreBoard.addPlayer(player);
             scoreBoard.setScore(playerName, 0);
         }
-        streaks.put(playerName, new KillStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
+        ultimateGames.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+            @Override
+            public void run() {
+                streaks.put(playerName, new KillStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
+            }
+        });
         return true;
     }
 
@@ -179,6 +184,11 @@ public class FishSlap extends GamePlugin {
                 streaks.get(killerName).increaseCount();
             }
             killers.remove(playerName);
+            for (String arenaPlayer : new ArrayList<String>(killers.keySet())) {
+                if (killers.get(arenaPlayer).equals(playerName)) {
+                    killers.remove(arenaPlayer);
+                }
+            }
         }
         event.getDrops().clear();
         UGUtils.autoRespawn(player);
