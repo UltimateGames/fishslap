@@ -2,8 +2,6 @@ main-class: "com.greatmancode.fishslap.FishSlap"
 description: "The official Ultimate Games Fishslap game"
 version: "1.0"
 author: "greatman"
-scoreTypeName: "Kills:Deaths"
-scoreType: "POINTS_HIGHER"
 playerType: "CONFIGUREABLE"
 DefaultSettings:
   MinPlayers: 2

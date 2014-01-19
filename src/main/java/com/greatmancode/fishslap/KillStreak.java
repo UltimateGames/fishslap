@@ -22,7 +22,7 @@ public class KillStreak extends Streak {
     @Override
     public void reset() {
         if (getCount() >= 5) {
-            ultimateGames.getMessageManager().sendGameMessage(getPlayer().getArena(), game, "Shutdown", getPlayer().getPlayerName());
+            ultimateGames.getMessenger().sendGameMessage(getPlayer().getArena(), game, "Shutdown", getPlayer().getPlayerName());
         }
         super.reset();
     }

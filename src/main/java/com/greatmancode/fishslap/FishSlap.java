@@ -60,7 +60,7 @@ public class FishSlap extends GamePlugin {
     @Override
     public boolean loadArena(Arena arena) {
         ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Kills");
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Kills");
         scoreBoard.setVisible(true);
         return true;
     }
@@ -117,7 +117,7 @@ public class FishSlap extends GamePlugin {
         resetInventory(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             scoreBoard.addPlayer(player);
             scoreBoard.setScore(playerName, 0);
@@ -134,7 +134,7 @@ public class FishSlap extends GamePlugin {
     @Override
     public void removePlayer(Player player, Arena arena) {
         String playerName = player.getName();
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             scoreBoard.resetScore(playerName);
         }
@@ -176,7 +176,7 @@ public class FishSlap extends GamePlugin {
         streaks.get(playerName).reset();
         if (killers.containsKey(playerName)) {
             String killerName = killers.get(playerName);
-            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
             if (scoreBoard != null) {
                 scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
                 ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
