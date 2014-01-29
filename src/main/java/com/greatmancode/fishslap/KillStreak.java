@@ -1,9 +1,9 @@
 package com.greatmancode.fishslap;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.players.ArenaPlayer;
-import me.ampayne2.ultimategames.players.streaks.Streak;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.players.ArenaPlayer;
+import me.ampayne2.ultimategames.api.players.streaks.Streak;
 
 public class KillStreak extends Streak {
     private UltimateGames ultimateGames;
@@ -15,6 +15,7 @@ public class KillStreak extends Streak {
                 new KillStreakAction(ultimateGames, game, 15, "Domination"),
                 new KillStreakAction(ultimateGames, game, 20, "Unstoppable"),
                 new KillStreakAction(ultimateGames, game, 25, "God"));
+
         this.ultimateGames = ultimateGames;
         this.game = game;
     }

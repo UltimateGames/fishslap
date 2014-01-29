@@ -1,12 +1,13 @@
 package com.greatmancode.fishslap;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.api.GamePlugin;
-import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
-import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
+import me.ampayne2.ultimategames.api.arenas.spawnpoints.PlayerSpawnPoint;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.games.GamePlugin;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -30,11 +31,11 @@ import java.util.Map;
 public class FishSlap extends GamePlugin {
     private UltimateGames ultimateGames;
     private Game game;
-    private Map<String, KillStreak> streaks = new HashMap<String, KillStreak>();
+    private Map<String, KillStreak> streaks = new HashMap<>();
     private final static ItemStack FISH;
     private final static Vector HORIZONTAL = new Vector(3, 0, 3);
     private final static Vector VERTICAL = new Vector(0, 2, 0);
-    private final static Map<String, String> killers = new HashMap<String, String>();
+    private final static Map<String, String> killers = new HashMap<>();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -60,7 +61,7 @@ public class FishSlap extends GamePlugin {
     @Override
     public boolean loadArena(Arena arena) {
         ultimateGames.addAPIHandler("/" + game.getName() + "/" + arena.getName(), new FishSlapWebHandler(ultimateGames, arena));
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Kills");
+        Scoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Kills");
         scoreBoard.setVisible(true);
         return true;
     }
@@ -87,12 +88,6 @@ public class FishSlap extends GamePlugin {
 
     @Override
     public void endArena(Arena arena) {
-
-    }
-
-    @Override
-    public boolean resetArena(Arena arena) {
-        return true;
     }
 
     @Override
@@ -117,12 +112,12 @@ public class FishSlap extends GamePlugin {
         resetInventory(player);
         player.setHealth(20.0);
         player.setFoodLevel(20);
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
+        Scoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             scoreBoard.addPlayer(player);
             scoreBoard.setScore(playerName, 0);
         }
-        ultimateGames.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 streaks.put(playerName, new KillStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
@@ -134,13 +129,13 @@ public class FishSlap extends GamePlugin {
     @Override
     public void removePlayer(Player player, Arena arena) {
         String playerName = player.getName();
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
+        Scoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             scoreBoard.resetScore(playerName);
         }
         streaks.remove(playerName);
         killers.remove(playerName);
-        for (String arenaPlayer : new ArrayList<String>(killers.keySet())) {
+        for (String arenaPlayer : new ArrayList<>(killers.keySet())) {
             if (killers.get(arenaPlayer).equals(playerName)) {
                 killers.remove(arenaPlayer);
             }
@@ -176,7 +171,7 @@ public class FishSlap extends GamePlugin {
         streaks.get(playerName).reset();
         if (killers.containsKey(playerName)) {
             String killerName = killers.get(playerName);
-            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
+            Scoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
             if (scoreBoard != null) {
                 scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
                 ultimateGames.getPointManager().addPoint(game, killerName, "store", 1);
@@ -184,14 +179,14 @@ public class FishSlap extends GamePlugin {
                 streaks.get(killerName).increaseCount();
             }
             killers.remove(playerName);
-            for (String arenaPlayer : new ArrayList<String>(killers.keySet())) {
+            for (String arenaPlayer : new ArrayList<>(killers.keySet())) {
                 if (killers.get(arenaPlayer).equals(playerName)) {
                     killers.remove(arenaPlayer);
                 }
             }
         }
         event.getDrops().clear();
-        UGUtils.autoRespawn(player);
+        UGUtils.autoRespawn(ultimateGames.getPlugin(), player);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.greatmancode.fishslap;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.players.ArenaPlayer;
-import me.ampayne2.ultimategames.players.streaks.StreakAction;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.players.ArenaPlayer;
+import me.ampayne2.ultimategames.api.players.streaks.StreakAction;
 
 public class KillStreakAction extends StreakAction {
     private UltimateGames ultimateGames;
