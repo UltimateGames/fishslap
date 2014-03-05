@@ -6,6 +6,7 @@ import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
 import me.ampayne2.ultimategames.api.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.api.games.Game;
 import me.ampayne2.ultimategames.api.games.GamePlugin;
+import me.ampayne2.ultimategames.api.players.points.PointManager;
 import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -32,7 +33,12 @@ public class FishSlap extends GamePlugin {
     private UltimateGames ultimateGames;
     private Game game;
     private Map<String, KillStreak> streaks = new HashMap<>();
-    private final static ItemStack FISH;
+    private final static ItemStack RAW_FISH;
+    private final static ItemStack COOKED_FISH;
+    private final static ItemStack RAW_SALMON;
+    private final static ItemStack COOKED_SALMON;
+    private final static ItemStack CLOWNFISH;
+    private final static ItemStack PUFFERFISH;
     private final static Vector HORIZONTAL = new Vector(3, 0, 3);
     private final static Vector VERTICAL = new Vector(0, 2, 0);
     private final static Map<String, String> killers = new HashMap<>();
@@ -239,12 +245,37 @@ public class FishSlap extends GamePlugin {
     private void resetInventory(Player player) {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        player.getInventory().addItem(FISH, UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(UGUtils.createInstructionBook(game));
+        PointManager pointManager = ultimateGames.getPointManager();
+        String playerName = player.getName();
+        if (pointManager.hasPerk(game, playerName, "fish6")) {
+            player.getInventory().addItem(PUFFERFISH);
+        } else if (pointManager.hasPerk(game, playerName, "fish5")) {
+            player.getInventory().addItem(CLOWNFISH);
+        } else if (pointManager.hasPerk(game, playerName, "fish4")) {
+            player.getInventory().addItem(COOKED_SALMON);
+        } else if (pointManager.hasPerk(game, playerName, "fish3")) {
+            player.getInventory().addItem(RAW_SALMON);
+        } else if (pointManager.hasPerk(game, playerName, "fish2")) {
+            player.getInventory().addItem(COOKED_FISH);
+        } else {
+            player.getInventory().addItem(RAW_FISH);
+        }
         player.updateInventory();
     }
 
     static {
-        FISH = new ItemStack(Material.RAW_FISH);
-        FISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        RAW_FISH = new ItemStack(Material.RAW_FISH, 1);
+        RAW_FISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        COOKED_FISH = new ItemStack(Material.COOKED_FISH, 1);
+        COOKED_FISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        RAW_SALMON = new ItemStack(Material.RAW_FISH, 1, (short) 1);
+        RAW_SALMON.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        COOKED_SALMON = new ItemStack(Material.COOKED_FISH, 1, (short) 1);
+        COOKED_SALMON.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        CLOWNFISH = new ItemStack(Material.RAW_FISH, 1, (short) 2);
+        CLOWNFISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
+        PUFFERFISH = new ItemStack(Material.RAW_FISH, 1, (short) 3);
+        PUFFERFISH.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
     }
 }
