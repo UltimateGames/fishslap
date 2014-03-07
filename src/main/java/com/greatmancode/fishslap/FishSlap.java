@@ -215,6 +215,8 @@ public class FishSlap extends GamePlugin {
     public void onEntityDamage(Arena arena, EntityDamageEvent event) {
         if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
             event.setCancelled(true);
+        } else if (event.getCause() == EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
+            event.setDamage(((Player) event.getEntity()).getHealth());
         }
     }
 
