@@ -19,10 +19,3 @@ DefaultSettings:
   Use-Whitelist-As-Blacklist: false
 Instructions:
 - "Slap people off with your fish!"
-Messages:
-  KillingSpree: "&b%s is on a killing spree!"
-  Rampage: "&b%s is on a rampage!"
-  Domination: "&b%s is dominating!"
-  Unstoppable: "&b%s is unstoppable!"
-  God: "&b%s is a god!"
-  Shutdown: "&b%s was shutdown!"

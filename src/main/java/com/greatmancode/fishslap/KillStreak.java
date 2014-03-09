@@ -10,11 +10,11 @@ public class KillStreak extends Streak {
     private Game game;
 
     public KillStreak(UltimateGames ultimateGames, Game game, ArenaPlayer player) {
-        super(player, new KillStreakAction(ultimateGames, game, 5, "KillingSpree"),
-                new KillStreakAction(ultimateGames, game, 10, "Rampage"),
-                new KillStreakAction(ultimateGames, game, 15, "Domination"),
-                new KillStreakAction(ultimateGames, game, 20, "Unstoppable"),
-                new KillStreakAction(ultimateGames, game, 25, "God"));
+        super(player, new KillStreakAction(ultimateGames, game, 5, FSMessage.KILLING_SPREE),
+                new KillStreakAction(ultimateGames, game, 10, FSMessage.RAMPAGE),
+                new KillStreakAction(ultimateGames, game, 15, FSMessage.DOMINATION),
+                new KillStreakAction(ultimateGames, game, 20, FSMessage.UNSTOPPABLE),
+                new KillStreakAction(ultimateGames, game, 25, FSMessage.GOD));
 
         this.ultimateGames = ultimateGames;
         this.game = game;
@@ -23,7 +23,7 @@ public class KillStreak extends Streak {
     @Override
     public void reset() {
         if (getCount() >= 5) {
-            ultimateGames.getMessenger().sendGameMessage(getPlayer().getArena(), game, "Shutdown", getPlayer().getPlayerName());
+            ultimateGames.getMessenger().sendGameMessage(getPlayer().getArena(), game, FSMessage.SHUTDOWN, getPlayer().getPlayerName());
         }
         super.reset();
     }

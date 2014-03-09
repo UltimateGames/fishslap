@@ -7,8 +7,10 @@ import me.ampayne2.ultimategames.api.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.api.games.Game;
 import me.ampayne2.ultimategames.api.games.GamePlugin;
 import me.ampayne2.ultimategames.api.players.points.PointManager;
+import me.ampayne2.ultimategames.api.utils.BossBar;
 import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -47,6 +49,7 @@ public class FishSlap extends GamePlugin {
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
+        game.setMessages(FSMessage.class);
         return true;
     }
 
@@ -129,6 +132,8 @@ public class FishSlap extends GamePlugin {
                 streaks.put(playerName, new KillStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
             }
         });
+
+        BossBar.setStatusBar(player, ChatColor.AQUA + "Welcome to Fishslap Orbit!", 1);
         return true;
     }
 
@@ -146,6 +151,7 @@ public class FishSlap extends GamePlugin {
                 killers.remove(arenaPlayer);
             }
         }
+        BossBar.removeStatusBar(player);
     }
 
     @SuppressWarnings("deprecation")
@@ -199,6 +205,17 @@ public class FishSlap extends GamePlugin {
     public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
         event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
         resetInventory(event.getPlayer());
+        final String playerName = event.getPlayer().getName();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                Player player = Bukkit.getPlayerExact(playerName);
+                if (player != null) {
+                    BossBar.removeStatusBar(player);
+                    BossBar.setStatusBar(player, ChatColor.AQUA + "Welcome to Fishslap Orbit!", 1);
+                }
+            }
+        }, 0);
     }
 
     @Override
